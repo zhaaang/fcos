@@ -1,5 +1,6 @@
 ### train for PASCAL VOC
-You can run the train_voc.py, train 30 epoch and you can get the result. You need to change the PASCAL07+12 path, you can reference to this repo:https://github.com/YuwenXiong/py-R-FCN
+You need to download a pretrained resnet50 model and put it in this folder.
+You can run the train_voc.py, train 20 epoch and you can get the result. You need to change the PASCAL07+12 path, you can reference to this repo:https://github.com/YuwenXiong/py-R-FCN
 
 ### predict
 You can run the predic.py to predict the box/score/class in a new picture.
