@@ -1,6 +1,13 @@
 import torch
 import numpy as np
 import cv2
+from torch.utils.tensorboard import SummaryWriter
+from model.fcos import FCOSDetector
+# from demo import convertSyncBNtoBN
+from dataset.VOC_dataset import VOCDataset
+
+log_dir = "logs/"
+writer = SummaryWriter(log_dir)
 
 def sort_by_score(pred_boxes, pred_labels, pred_scores):
     score_seq = [(-score).argsort() for index, score in enumerate(pred_scores)]
@@ -122,21 +129,20 @@ def eval_ap_2d(gt_boxes, gt_labels, pred_boxes, pred_labels, pred_scores, iou_th
         # print(recall, precision)
     return all_ap
 
-def maineval(modelpath="./checkpoint/model_30.pth"):
-    from model.fcos import FCOSDetector
-    # from demo import convertSyncBNtoBN
-    from dataset.VOC_dataset import VOCDataset
+
     
 
-    eval_dataset = VOCDataset(root_dir='/home/Disk1/zhangqiang/objectdetection/data/VOCdevkit/VOC2012', resize_size=[800, 1333],
-                               split='val', use_difficult=False, is_train=False, augment=None)
-    print("INFO===>eval dataset has %d imgs"%len(eval_dataset))
-    eval_loader=torch.utils.data.DataLoader(eval_dataset,batch_size=1,shuffle=False,collate_fn=eval_dataset.collate_fn)
+eval_dataset = VOCDataset(root_dir='/home/Disk1/zhangqiang/objectdetection/data/VOCdevkit/VOC2012', resize_size=[800, 1333],
+                           split='val', use_difficult=False, is_train=False, augment=None)
+print("INFO===>eval dataset has %d imgs"%len(eval_dataset))
+eval_loader=torch.utils.data.DataLoader(eval_dataset,batch_size=1,shuffle=False,collate_fn=eval_dataset.collate_fn)
 
-    model=FCOSDetector(mode="inference")
-    # model=torch.nn.SyncBatchNorm.convert_sync_batchnorm(model)
-    # print("INFO===>success convert BN to SyncBN")
-    model = torch.nn.DataParallel(model)
+model=FCOSDetector(mode="inference")
+# model=torch.nn.SyncBatchNorm.convert_sync_batchnorm(model)
+# print("INFO===>success convert BN to SyncBN")
+model = torch.nn.DataParallel(model)
+for i in range(1,21):
+    modelpath = "./checkpoint/model_{}.pth".format(i)
     model.load_state_dict(torch.load(modelpath, map_location=torch.device('cpu')))
     # model=convertSyncBNtoBN(model)
     # print("INFO===>success convert SyncBN to BN")
@@ -170,6 +176,5 @@ def maineval(modelpath="./checkpoint/model_30.pth"):
         mAP+=float(class_mAP)
     mAP/=(len(eval_dataset.CLASSES_NAME)-1)
     print("mAP=====>%.3f\n"%mAP)
-    return mAP
+    writer.add_scalar('mAP', mAP, i)
 
-maineval("./checkpoint/model_30.pth")

@@ -8,7 +8,6 @@ import numpy as np
 import random
 import torch.backends.cudnn as cudnn
 import argparse
-from torch.utils.tensorboard import SummaryWriter
 
 log_dir = "logs/"
 writer = SummaryWriter(log_dir)
@@ -41,17 +40,6 @@ train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=BATCH_SIZE,
                                            collate_fn=train_dataset.collate_fn,
                                            num_workers=opt.n_cpu, worker_init_fn=np.random.seed(0))
 print("total_images : {}".format(len(train_dataset)))
-
-eval_dataset = VOCDataset(root_dir='/home/Disk1/zhangqiang/objectdetection/data/VOCdevkit/VOC2012',
-                              resize_size=[800, 1333],
-                              split='val', use_difficult=False, is_train=False, augment=None)
-print("INFO===>eval dataset has %d imgs" % len(eval_dataset))
-
-eval_loader = torch.utils.data.DataLoader(eval_dataset, batch_size=3, shuffle=False,
-                                              collate_fn=eval_dataset.collate_fn)
-
-eval_loader1 = torch.utils.data.DataLoader(eval_dataset, batch_size=1, shuffle=False,
-                                              collate_fn=eval_dataset.collate_fn)
 
 steps_per_epoch = len(train_dataset) // BATCH_SIZE
 TOTAL_STEPS = steps_per_epoch * EPOCHS
@@ -88,12 +76,16 @@ for epoch in range(EPOCHS):
            lr = float(GLOBAL_STEPS / WARMPUP_STEPS * LR_INIT)
            for param in optimizer.param_groups:
                param['lr'] = lr
-        if GLOBAL_STEPS == 20001:
-           lr = LR_INIT * 0.1
+        if epoch == 5:
+           lr = LR_INIT * 0.5
            for param in optimizer.param_groups:
                param['lr'] = lr
-        if GLOBAL_STEPS == 27001:
-           lr = LR_INIT * 0.01
+        if GLOBAL_STEPS == 10:
+           lr = LR_INIT * 0.25
+           for param in optimizer.param_groups:
+              param['lr'] = lr
+        if GLOBAL_STEPS == 15:
+           lr = LR_INIT * 0.125
            for param in optimizer.param_groups:
               param['lr'] = lr
         start_time = time.time()
@@ -113,7 +105,6 @@ for epoch in range(EPOCHS):
         GLOBAL_STEPS += 1
 
     writer.add_scalar('trainLoss', loss.mean(), epoch + 1)
+    writer.add_scalar('trainLoss', lr, epoch + 1)
     torch.save(model.state_dict(),
                "./checkpoint/model_{}.pth".format(epoch + 1))
-
-
