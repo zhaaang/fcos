@@ -1,6 +1,9 @@
-## FCOS: Pytorch Implementation Support PASCAL VOC and MS COCO
-RetinaNet code which is similar with this repo :https://github.com/ChingHo97/RetinaNet-Pytorch-36.4AP
-you can find difference between the anchor free and anchor base.
+### train for PASCAL VOC
+You can run the train_voc.py, train 30 epoch and you can get the result. You need to change the PASCAL07+12 path, you can reference to this repo:https://github.com/YuwenXiong/py-R-FCN
+
+### predict
+You can run the predic.py to predict the box/score/class in a new picture.
+
 ###  AP Result
 | PASCAL VOC (800px) | COCO(800px) |
 | :-----------: | :-----------------: |
@@ -17,37 +20,8 @@ you can find difference between the anchor free and anchor base.
 * tqdm
 * pycocotools
 
-### Results in coco 
-Train coco2017 on 4 Tesla-V100, 4 imgs for each gpu, init lr=1e-2  using GN,central sampling,GIou.
-
-
-You can download the 37.2 ap result in [Baidu driver link](https://pan.baidu.com/s/1tv0F_nmwiJ47C3zJ5v_C0g), password: cnwm,then put it in checkpoint folder, then run the coco_eval.py
-you can get the result as follows:
-```python
-Average Precision  (AP) @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.372
- Average Precision  (AP) @[ IoU=0.50      | area=   all | maxDets=100 ] = 0.559
- Average Precision  (AP) @[ IoU=0.75      | area=   all | maxDets=100 ] = 0.399
- Average Precision  (AP) @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = 0.207
- Average Precision  (AP) @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.410
- Average Precision  (AP) @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.495
- Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets=  1 ] = 0.311
- Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets= 10 ] = 0.503
- Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.553
- Average Recall     (AR) @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = 0.358
- Average Recall     (AR) @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.597
- Average Recall     (AR) @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.687
-```
-### there are some details you neet to notice:
-as for the data-augument, I only use flip, color jitter and rotate ,the random crop I also use for my training, but the ap is lower.
-so I suggest you turn off the random crop.
-
-do NMS the scores needs to sqrt, which reference to the offical.
-
-the offical use BGR to training and pixel is not normalized to 0~1 , I use RGB and do the normalization.
 
 ### Results in Pascal Voc
-Train Voc07+12 on 2 Tesla-V100 , 8 imgs for each gpu, init lr=1e-2  using GN,central sampling,GIou.  
-
 You can download the 78.7 ap result in [Baidu driver link](https://pan.baidu.com/s/1aB0irfcJQM5WTlmiKFOfEA), password:s4cp, then put it in checkpoint folder, then run the eval_voc.py and
 you can get the result as follows:
 ```python
@@ -74,14 +48,4 @@ ap for tvmonitor is 0.8186715890179656
 mAP=====>0.787
 ```
 I also use the cosine lr to train the voc, and it got 76.7mAP, which is lower than linear. I think the cosine lr matches Adam is better.
-### train for coco
-You can run the train_coco.py, train 24 epoch and you can get the result. You need to change the coco2017 path.
-### train for PASCAL VOC
-You can run the train_voc.py, train 30 epoch and you can get the result. You need to change the PASCAL07+12 path, you can reference to this repo:https://github.com/YuwenXiong/py-R-FCN
 
-### Detect Image   
-You can run the detect.py to detect images , this repo provides PASCAL VOC Images detection demo.
-![test1](assets/000004.jpg)  
-![test1](assets/000352.jpg)  
-
-thanks to [@VectXmy](https://github.com/VectXmy), I referenced some codes.
